@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUNI Interactive Tabletop Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#27829E;--primary-h:#1e6a82;--corp:#3f5875;
+  --text:#282828;--text-inv:#fff;--muted:#3f5875;
+  --pist:#93C572;--rose:#B76E79;
+  --g100:#F7F7F7;--g200:#EBEBEB;--g300:#CCC;
+  --bg:#fff;--bg2:#F7F7F7;
+  --r:8px;--rs:4px;--pill:50px;
+  --sh:0 2px 4px rgba(40,40,40,.05);--shm:0 4px 12px rgba(40,40,40,.12);--shh:0 12px 24px rgba(40,40,40,.2);
+  --fh:'DM Sans',sans-serif;--fb:'Inter',sans-serif;
+}
+body{font-family:var(--fb);font-size:15px;line-height:1.5;color:var(--text);background:var(--bg2)}
+h1,h2,h3,h4{font-family:var(--fh);font-weight:500}
+
+/* Buttons */
+.btn{font-family:var(--fh);font-size:13px;font-weight:700;border-radius:var(--r);padding:10px 20px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:2px solid var(--primary)}
+.btn-p{background:var(--primary);color:var(--text-inv)}.btn-p:hover{background:var(--primary-h);border-color:var(--primary-h)}
+.btn-s{background:transparent;color:var(--corp);border-color:var(--corp)}.btn-s:hover{background:var(--corp);color:#fff}
+.btn-g{background:transparent;color:var(--muted);border-color:var(--g200)}.btn-g:hover{border-color:var(--corp)}
+.btn-full{width:100%}
+
+/* Inputs */
+.inp{font-family:var(--fb);font-size:15px;border:1px solid var(--g300);border-radius:var(--rs);padding:10px 14px;width:100%;box-sizing:border-box;transition:all .2s}
+.inp:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(39,130,158,.12)}
+
+/* Chips */
+.chip{padding:8px 16px;border-radius:var(--r);border:1px solid var(--g200);background:var(--bg);font-family:var(--fb);font-size:13px;cursor:pointer;transition:all .2s;color:var(--muted)}
+.chip.on{border-color:var(--primary);color:var(--primary);font-weight:600;background:rgba(39,130,158,.06)}
+.chip:hover{border-color:var(--primary)}
+
+/* Swatches */
+.sw{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.sw.on{border-color:var(--primary);outline:2px solid var(--primary);outline-offset:2px}
+.sw.lt{border-color:var(--g200)}
+
+/* Panels */
+.pnl{background:var(--bg);border:1px solid var(--g200);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}
+.pnl-t{font-family:var(--fh);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--corp);margin-bottom:12px}
+
+/* Cards */
+.card{background:var(--bg);border:1px solid var(--g200);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .2s;box-shadow:var(--sh)}
+.card:hover{border-color:var(--primary);box-shadow:var(--shm)}
+
+/* Modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:var(--bg);border-radius:var(--r);max-width:680px;width:95%;max-height:85vh;overflow:auto;box-shadow:var(--shh)}
+
+/* Qty */
+.qb{width:32px;height:32px;border-radius:var(--rs);border:1px solid var(--g200);background:var(--bg);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.qb:hover{border-color:var(--primary);color:var(--primary)}
+.qi{width:56px;height:32px;border:1px solid var(--g200);border-radius:var(--rs);text-align:center;font-size:14px;font-weight:600;font-family:var(--fb)}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:var(--rs);font-size:11px;font-weight:700}
+.badge-eco{background:var(--pist);color:#fff}
+.badge-d{background:var(--g100);color:var(--corp)}
+.badge-t{background:rgba(39,130,158,.1);color:var(--primary)}
+
+/* Cust card */
+.cc{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .2s}
+.cc:hover{border-color:var(--primary)}.cc.on{border-color:var(--primary);background:rgba(39,130,158,.04)}
+.ck{width:18px;height:18px;border-radius:var(--rs);border:2px solid var(--g300);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0;transition:all .2s}
+.cc.on .ck{background:var(--primary);border-color:var(--primary)}
+
+/* Img */
+.img-box{background:var(--bg2);border-radius:var(--rs);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.img-box img{width:100%;height:100%;object-fit:cover}
+
+/* Mood cards */
+.mood{padding:24px 20px;border:2px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .2s;text-align:center}
+.mood:hover{border-color:var(--primary);box-shadow:var(--shm)}.mood.on{border-color:var(--primary);background:rgba(39,130,158,.04)}
+
+/* Eco bar */
+.eco-bar{height:12px;border-radius:6px;background:var(--g200);overflow:hidden;flex:1}
+.eco-fill{height:100%;border-radius:6px;background:var(--pist);transition:width .4s ease}
+
+/* Set item */
+.si{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--g200);border-radius:var(--r);background:var(--bg);cursor:pointer;transition:all .15s}
+.si:hover{border-color:var(--primary)}.si.on{border-left:3px solid var(--primary);background:rgba(39,130,158,.02)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+
+/* Fade */
+.fin{animation:fi .2s ease-out}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){.g2{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const {useState}=React;
+const MB="https://mediabank.duni.com/images/online/300/";
+
+/* ─── Logos ─── */
+const DuniLogo=({h=36})=><svg height={h} viewBox="0 0 98 48" fill="none"><path d="M79.2534 5.3616C73.1438 5.55401 67.1538 7.1054 61.719 9.903C61.7502 9.966 63.138 5.298 68.31 2.0502C62.2866 0.7254 55.632 0 48.6306 0C21.7608 0 0 10.7544 0 24C0 37.2456 21.7608 48 48.6306 48C75.5004 48 97.2612 37.2456 97.2612 24C97.2612 16.4628 90.2286 9.7452 79.2534 5.3616Z" fill="#27809B"/><path d="M30.1812 29.1094C31.632 27.6274 32.3256 25.8928 32.3256 23.9374C32.3256 22.0138 31.632 20.2792 30.2442 18.7966C28.857 17.2828 26.7438 16.5262 23.9052 16.5262H20.2788V31.3486H23.9052C26.649 31.3804 28.7304 30.6232 30.1812 29.1094ZM22.2972 29.3614V18.5134H23.3376C24.8514 18.5134 26.0496 18.6706 26.9646 18.9862C27.8478 19.3012 28.6362 19.9318 29.2668 20.8462C29.8974 21.7612 30.2448 22.8022 30.2448 23.9374C30.2448 24.8518 30.0552 25.6714 29.6448 26.4286C29.235 27.1858 28.6992 27.7846 28.005 28.258C27.3536 28.7088 26.6107 29.0103 25.8294 29.1412C25.0722 29.2672 23.937 29.3302 22.4232 29.3302H22.2972V29.3614ZM43.5846 31.8532C45.3192 31.8532 46.6752 31.3174 47.7162 30.2134C48.7566 29.1412 49.2612 27.6904 49.2612 25.861V16.558H47.2428V26.0188C47.2428 27.2488 46.9278 28.195 46.2654 28.8886C45.603 29.5828 44.6886 29.8978 43.5216 29.8978C42.3234 29.8978 41.4084 29.5198 40.7778 28.7938C40.1154 28.069 39.7998 27.028 39.7998 25.672V16.558H37.782V25.3252C37.782 27.4696 38.3178 29.1094 39.3588 30.2134C40.3992 31.3174 41.8188 31.8532 43.5846 31.8532ZM57.5874 20.8468L68.5626 32.0428V16.5262H66.5442V27.2176L55.569 15.958V31.3804H57.5874V20.8468ZM76.9512 16.5262H74.9646V31.3486H76.9512V16.5262Z" fill="white"/></svg>;
+const SybitSVG=()=><svg width="80" height="17" viewBox="0 0 192 40" fill="none"><path d="M92.6582.88H118.31C126.228.88 130.628 4.67 130.628 10.49C130.628 15.43 126.499 18.54 119.054 18.75C127.311 18.88 131.914 22.81 131.914 28.49C131.914 34.59 126.973 39.12 119.528 39.12H92.6582V.88ZM116.415 16.18C120.543 16.18 122.844 15.23 122.844 11.91C122.844 8.39 120.475 7.38 116.415 7.38H100.374L100.442 16.18H116.415ZM117.497 32.56C121.829 32.56 124.13 30.46 124.13 26.87C124.13 23.35 121.829 21.39 117.497 21.39H100.442L100.509 32.56H117.497Z" fill="white"/><path d="M.00164 26.87H8.12C8.06 30.86 12.93 33.5 20.92 33.5C29.92 33.5 34.93 31.88 34.93 28.22C34.93 17.87 1.08 29.85 1.08 12.12C1.02 4.26 9.27 0 21.19 0C33.64 0 41.83 5.28 41.9 13.2H33.98C33.98 9.14 29.17 6.5 21.39 6.5C13.47 6.5 8.94 8.12 8.94 11.44C8.94 21.05 42.71 9.88 42.71 27.88C42.71 35.87 34.25 40 21.25 40C8.12 40-.13 34.65.00164 26.87Z" fill="white"/><path d="M61.19 26.8L41.56.88H51.1L65.11 19.97L79.05.88H88.6L69.04 26.73V39.12H61.19V26.8Z" fill="white"/><path d="M167.11 7.72H150.19V.88H191.88V7.72H174.89V39.19H167.11V7.72Z" fill="white"/><path d="M145.86 10.76C145.86 11.3 145.79 11.84 145.65 12.39C144.98 15.57 142.13 17.73 137.4 18.34V.88H145.86V10.76Z" fill="white"/><path d="M145.86 26.87C145.86 26.33 145.79 25.79 145.65 25.25C144.98 22.06 142.13 19.9 137.4 19.29V39.19H145.86V26.87Z" fill="white"/></svg>;
+
+/* ─── Image ─── */
+function Img({id,w,h,cover}){
+  if(!id) return <div style={{width:w,height:h||w,background:"var(--g100)",borderRadius:"var(--rs)"}}/>;
+  return <img src={MB+id+".jpg"} loading="lazy" style={{width:w||"100%",height:h||w||"100%",objectFit:cover?"cover":"contain",display:"block",borderRadius:"var(--rs)"}} onError={e=>{e.target.style.opacity='.2'}}/>;
+}
+
+/* ─── Products ─── */
+const P={
+  napkins:{cat:"Napkins",items:[
+    {id:"el-cream",name:"Elegance® Lily Napkin",mat:"Dunilin®",img:"168433",sizes:["33×33cm","40×40cm","48×48cm"],packs:["40 (10×4)","240 (6×40)"],price:66.82,eco:false,cust:true,certs:["FSC®","OK Compost"],
+      vars:[{n:"White",h:"#fff",l:1,img:"168432"},{n:"Cream",h:"#F5F0E1",l:1,img:"168433"},{n:"Black",h:"#181818",img:"168438"},{n:"Bordeaux",h:"#800020",img:"174389"},{n:"Red",h:"#CC0000",img:"168436"},{n:"Dark Blue",h:"#1A237E",img:"168435"}]},
+    {id:"ds-white",name:"Dunisoft® Napkin",mat:"Dunisoft® (Airlaid)",img:"168429",sizes:["20×20cm","40×40cm"],packs:["60 (12×5)","180 (6×30)","720 (12×60)"],price:42.50,eco:false,cust:true,certs:["FSC®"],
+      vars:[{n:"White",h:"#fff",l:1,img:"168429"},{n:"Black",h:"#181818",img:"199153"},{n:"Grey",h:"#9E9E9E",img:"199153"},{n:"Mandarin",h:"#FF9800",img:"186712"}]},
+    {id:"bio-green",name:"Bio Dunisoft® Napkin",mat:"Bio Dunisoft®",img:"202958",sizes:["40×40cm"],packs:["60 (12×5)","180 (6×30)"],price:55.00,eco:true,cust:false,certs:["FSC®","ecoecho®","OK Compost HOME"],
+      vars:[{n:"White",h:"#fff",l:1,img:"202954"},{n:"Black",h:"#181818",img:"202956"},{n:"Leaf Green",h:"#4CAF50",img:"202958"},{n:"Sand",h:"#D2B48C",img:"202960"}]}
+  ]},
+  tablecovers:{cat:"Table Covers",items:[
+    {id:"dc-white",name:"Dunicel® Table Cover",mat:"Dunicel®",img:"185453",sizes:["118×160cm","118×220cm","125×220cm"],packs:["25 (5×5)","50 (10×5)"],price:89.00,eco:false,cust:true,certs:["FSC®"],
+      vars:[{n:"White",h:"#fff",l:1,img:"185453"},{n:"Black",h:"#181818",img:"185455"},{n:"Cream",h:"#F5F0E1",l:1,img:"185465"}]},
+    {id:"ev-white",name:"Evolin® Table Cover",mat:"Evolin®",img:"164169",sizes:["110×110cm","127×180cm","127×220cm"],packs:["15 (1×15)","25 (5×5)"],price:125.00,eco:false,cust:true,certs:["FSC®","Premium"],
+      vars:[{n:"White",h:"#fff",l:1,img:"164169"},{n:"Black",h:"#181818",img:"166369"},{n:"Greige",h:"#C8BFA9",img:"174443"}]}
+  ]},
+  lamps:{cat:"Candles & LED",items:[
+    {id:"z-gold",name:"LED Zelda Lamp",mat:"Metal / ABS",img:"210394",sizes:["Midi (14cm)","Standard (18cm)"],packs:["1 pc","6 pcs/box"],price:35.60,eco:false,cust:false,certs:["Rechargeable"],
+      vars:[{n:"Black",h:"#181818",img:"210395"},{n:"Gold",h:"#C9A96E",img:"210394"},{n:"Brass",h:"#B5A642",img:"206423"}]}
+  ]},
+  takeaway:{cat:"Take-Away",items:[
+    {id:"bag-bowl",name:"ecoecho® Bagasse Bowl",mat:"Bagasse",img:"205770",sizes:["500ml","750ml","1000ml"],packs:["50 pcs","200 pcs","400 pcs"],price:28.00,eco:true,cust:true,certs:["ecoecho®","OK Compost","Plastic-free"],
+      vars:[{n:"Natural",h:"#D4C5A0",img:"205770"}]},
+    {id:"p-cup",name:"ecoecho® Paper Cup",mat:"Paper (PLA)",img:"205029",sizes:["200ml","350ml","470ml"],packs:["50 pcs","500 pcs","1000 pcs"],price:18.50,eco:true,cust:true,certs:["ecoecho®","OK Compost"],
+      vars:[{n:"White",h:"#fff",l:1,img:"205029"},{n:"Kraft",h:"#C4A96A",img:"199148"}]}
+  ]}
+};
+const allItems=Object.values(P).flatMap(c=>c.items);
+const findP=id=>allItems.find(p=>p.id===id);
+
+const CUST=[{id:"text",name:"Text Print",desc:"Custom text or slogan",cost:2},{id:"logo",name:"Logo Print",desc:"Company logo on the product",cost:2},{id:"emboss",name:"Embossing",desc:"Elegant blind embossing",cost:5},{id:"pattern",name:"Pattern / Design",desc:"Custom pattern or motif",cost:8}];
+/* Eco alternatives mapping */
+const ECO_ALT={"ds-white":"bio-green","dc-white":"dc-white","el-cream":"bio-green","ev-white":"dc-white","z-gold":"z-gold","p-cup":"p-cup","bag-bowl":"bag-bowl"};
+const PRINT=[{name:"1 colour",m:1},{name:"2 colours",m:1.3},{name:"3 colours",m:1.6},{name:"Full colour",m:2}];
+const MOODS=[
+  {id:"casual",name:"Casual",desc:"Relaxed, natural, budget-friendly",color:"#8BC34A"},
+  {id:"fine",name:"Fine Dining",desc:"Elegant, premium materials",color:"#C9A96E"},
+  {id:"outdoor",name:"Outdoor",desc:"Fresh, vibrant, sustainable",color:"#27829E"},
+  {id:"event",name:"Event / Festival",desc:"Bold, high-volume, branded",color:"#FF9800"}
+];
+const TABLES=[{id:"r150",name:"Round 150cm",seats:6},{id:"r180",name:"Round 180cm",seats:8},{id:"x180",name:"Rect 180×80cm",seats:6},{id:"x220",name:"Rect 220×80cm",seats:8}];
+const SERVICES=[{id:"buffet",name:"Buffet",napMult:2},{id:"3course",name:"3-Course Dinner",napMult:3},{id:"cocktail",name:"Cocktail Reception",napMult:2}];
+
+const isEco=c=>c&&(c.includes("eco")||c.includes("Bio")||c.includes("Compost")||c.includes("Plastic"));
+
+/* ─── Make a set item ─── */
+function mkItem(prod,qty,varIdx,brandText){
+  const v=prod.vars[varIdx||0];
+  const custs=prod.cust&&brandText?["text"]:[];
+  return {id:Date.now()+Math.random(),pid:prod.id,prod,color:v,qty,sz:prod.sizes[0],pk:prod.packs[0],custs,cText:brandText||"",pIdx:0};
+}
+
+/* ─── App ─── */
+function App(){
+  // Phase
+  const [ph,setPh]=useState(1);
+  // Event setup
+  const [evName,setEvName]=useState("");
+  const [evType,setEvType]=useState("once");
+  const [mood,setMood]=useState(null);
+  const [guests,setGuests]=useState(50);
+  const [tableShape,setTableShape]=useState("r150");
+  const [tables,setTables]=useState(8);
+  const [tablesManual,setTablesManual]=useState(false);
+  const [service,setService]=useState("3course");
+  // Continuous supply
+  const [csDuration,setCsDuration]=useState("12m"); // 6m,12m,24m,unlimited
+  const [csFreq,setCsFreq]=useState("monthly"); // weekly,monthly,quarterly
+  const [csMealBasis,setCsMealBasis]=useState("day"); // day,week,month
+  const [csMeals,setCsMeals]=useState(100);
+  const [csTables,setCsTables]=useState(10);
+  // Set
+  const [items,setItems]=useState([]);
+  const [selId,setSelId]=useState(null);
+  const [generated,setGenerated]=useState(false);
+  // Add product modal
+  const [showAdd,setShowAdd]=useState(false);
+  const [addCat,setAddCat]=useState(null);
+  const [addProd,setAddProd]=useState(null);
+  const [addStep,setAddStep]=useState(1);
+  // Improve eco overlay
+  const [showImprove,setShowImprove]=useState(false);
+
+  // Auto-calc tables
+  const autoTables=()=>{
+    const t=TABLES.find(t=>t.id===tableShape);
+    return t?Math.ceil(guests/t.seats):8;
+  };
+  const effTables=tablesManual?tables:autoTables();
+
+  // Generate set
+  const generateSet=()=>{
+    // For continuous supply, calculate from meals basis
+    const isCont=evType==="continuous";
+    const mealsPerDelivery=isCont?(csMealBasis==="day"?csMeals*(csFreq==="weekly"?7:csFreq==="monthly"?30:90):csMealBasis==="week"?csMeals*(csFreq==="weekly"?1:csFreq==="monthly"?4:13):csMeals*(csFreq==="weekly"?0.25:csFreq==="monthly"?1:3)):0;
+    const effGuests=isCont?Math.round(mealsPerDelivery):guests;
+    const effT=isCont?csTables:effTables;
+    const svc=SERVICES.find(s=>s.id===service);
+    const napMult=isCont?2:(svc?.napMult||2);
+    const napQty=effGuests*napMult;
+    const bt=evName||""; // brand text for pre-fill
+    let list=[];
+    if(mood==="casual"){
+      list.push(mkItem(findP("ds-white"),napQty,0,bt));
+      list.push(mkItem(findP("dc-white"),effT));
+    } else if(mood==="fine"){
+      list.push(mkItem(findP("el-cream"),napQty,1,bt));
+      list.push(mkItem(findP("ev-white"),effT));
+      list.push(mkItem(findP("z-gold"),effT,1));
+    } else if(mood==="outdoor"){
+      list.push(mkItem(findP("bio-green"),napQty,2,bt));
+      list.push(mkItem(findP("dc-white"),effT));
+      list.push(mkItem(findP("p-cup"),effGuests,0,bt));
+    } else if(mood==="event"){
+      list.push(mkItem(findP("ds-white"),napQty,3,bt));
+      list.push(mkItem(findP("dc-white"),effT,1));
+      list.push(mkItem(findP("z-gold"),effT,0));
+      list.push(mkItem(findP("bag-bowl"),effGuests,0,bt));
+      list.push(mkItem(findP("p-cup"),effGuests,0,bt));
+    }
+    if(!isCont&&service==="cocktail"&&!list.find(i=>i.pid==="bio-green")){
+      list.push(mkItem(findP("bio-green"),effGuests,0));
+    }
+    // For continuous: add table covers based on daily changes × delivery period
+    if(isCont){
+      const daysPerDelivery=csFreq==="weekly"?7:csFreq==="monthly"?30:90;
+      list.forEach(i=>{if(i.prod.name.includes("Table Cover"))i.qty=effT*daysPerDelivery;});
+    }
+    setItems(list);
+    setSelId(list[0]?.id||null);
+    setGenerated(true);
+    setPh(2);
+  };
+
+  // Update item
+  const upItem=(id,fn)=>setItems(prev=>prev.map(i=>i.id===id?fn({...i}):i));
+  const rmItem=id=>{setItems(prev=>{const n=prev.filter(i=>i.id!==id);if(selId===id&&n.length)setSelId(n[0].id);return n;});};
+
+  // Eco score
+  const ecoScore=items.length?Math.round(items.filter(i=>i.prod.eco).length/items.length*100):0;
+  // Price includes customization costs per unit
+  const custCost=(item)=>item.custs.reduce((s,cid)=>{const c=CUST.find(x=>x.id===cid);return s+(c?c.cost:0);},0);
+  const itemTotal=(item)=>(item.prod.price+custCost(item))*item.qty;
+  const totalPrice=items.reduce((s,i)=>s+itemTotal(i),0);
+  // Continuous: deliveries per duration
+  const freqLabel={weekly:"week",monthly:"month",quarterly:"quarter"};
+  const deliveriesPerYear={weekly:52,monthly:12,quarterly:4};
+  const durationMonths={["6m"]:6,["12m"]:12,["24m"]:24,unlimited:120};
+  const totalDeliveries=evType==="continuous"?Math.round(deliveriesPerYear[csFreq]*(durationMonths[csDuration]/12)):1;
+  const perDeliveryPrice=totalPrice; // one set = one delivery
+  const contractTotal=perDeliveryPrice*totalDeliveries;
+
+  // Selected item
+  const sel=items.find(i=>i.id===selId);
+
+  // Toggle cust
+  const togCust=(itemId,cid)=>upItem(itemId,i=>({...i,custs:i.custs.includes(cid)?i.custs.filter(c=>c!==cid):[...i.custs,cid]}));
+
+  // Smart quantity based on product category and event
+  const smartQty=(prod)=>{
+    if(!prod)return 1;
+    const cat=Object.entries(P).find(([k,v])=>v.items.some(i=>i.id===prod.id));
+    if(!cat)return 1;
+    const svc=SERVICES.find(s=>s.id===service);
+    switch(cat[0]){
+      case"napkins":return guests*(svc?.napMult||2);
+      case"tablecovers":return effTables;
+      case"lamps":return effTables;
+      case"takeaway":return guests;
+      default:return 1;
+    }
+  };
+
+  // Add product from modal
+  const doAddProd=()=>{
+    if(!addProd)return;
+    const prod=findP(addProd);
+    if(!prod)return;
+    const ni=mkItem(prod,smartQty(prod));
+    setItems(prev=>[...prev,ni]);
+    setSelId(ni.id);
+    setShowAdd(false);setAddStep(1);setAddCat(null);setAddProd(null);
+  };
+
+  // Cross-sell: add suggestion
+  const addSuggestion=(prod)=>{
+    const ni=mkItem(prod,effTables||1);
+    setItems(prev=>[...prev,ni]);
+    setSelId(ni.id);
+  };
+
+  // Cross-sell suggestions
+  const getSuggestions=()=>{
+    if(!sel)return[];
+    const ids=items.map(i=>i.pid);
+    const sugg=[];
+    if(sel.prod.certs.some(c=>c.includes("Napkin")||sel.prod.name.includes("Napkin"))){
+      if(!ids.includes("z-gold"))sugg.push(findP("z-gold"));
+      if(!ids.includes("dc-white"))sugg.push(findP("dc-white"));
+    }
+    if(sel.prod.name.includes("Table Cover")){
+      if(!ids.includes("el-cream"))sugg.push(findP("el-cream"));
+    }
+    if(sel.prod.name.includes("Zelda")){
+      if(!ids.includes("ev-white"))sugg.push(findP("ev-white"));
+    }
+    // Always suggest something if nothing matched
+    if(!sugg.length){
+      allItems.filter(p=>!ids.includes(p.id)).slice(0,2).forEach(p=>sugg.push(p));
+    }
+    return sugg.filter(Boolean).slice(0,3);
+  };
+
+  return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+
+      {/* ═══ HEADER ═══ */}
+      <div style={{background:"var(--bg)",borderBottom:"1px solid var(--g200)",padding:"0 32px",position:"sticky",top:0,zIndex:100}}>
+        <div style={{maxWidth:1280,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:64}}>
+          <div style={{display:"flex",alignItems:"center",gap:20}}>
+            <DuniLogo h={32}/>
+            <div style={{width:1,height:24,background:"var(--g200)"}}/>
+            <span style={{fontFamily:"var(--fh)",fontSize:13,fontWeight:500,color:"var(--muted)"}}>Tabletop Assistant</span>
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            {[["Event Setup",1],["Set Composition",2],["Cart",3]].map(([l,n])=>(
+              <button key={n} onClick={()=>(n<=ph||generated)&&setPh(n)} style={{
+                fontFamily:"var(--fb)",fontSize:12,fontWeight:600,padding:"6px 14px",borderRadius:"var(--r)",border:"1px solid "+(n===ph?"var(--primary)":"var(--g200)"),
+                background:n===ph?"var(--primary)":n<ph?"var(--bg)":"var(--bg)",color:n===ph?"#fff":n<ph?"var(--text)":"var(--g300)",cursor:n<=ph||generated?"pointer":"default"
+              }}>{l}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ STICKY SUMMARY BAR (Phase 2+) ═══ */}
+      {ph>=2&&items.length>0&&(
+        <div style={{background:"var(--bg)",borderBottom:"1px solid var(--g200)",padding:"10px 32px",position:"sticky",top:64,zIndex:99}}>
+          <div style={{maxWidth:1280,margin:"0 auto",display:"flex",alignItems:"center",gap:20}}>
+            <h2 style={{fontFamily:"var(--fh)",fontSize:"1.75rem",fontWeight:700,flex:"0 0 auto"}}>{evName||"Untitled Event"}</h2>
+            <div style={{display:"flex",alignItems:"center",gap:6}}>
+              <span style={{fontFamily:"var(--fh)",fontSize:18,fontWeight:700,color:"var(--pist)"}}>{ecoScore}%</span>
+              <span style={{fontSize:11,color:"var(--muted)"}}>Eco</span>
+              <button onClick={()=>setShowImprove(true)} style={{background:"var(--pist)",color:"#fff",border:"none",borderRadius:"var(--rs)",padding:"3px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"var(--fh)"}}>Improve</button>
+            </div>
+            <div style={{flex:1}}/>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontFamily:"var(--fh)",fontSize:"1.5rem",fontWeight:700,whiteSpace:"nowrap"}}>€{totalPrice.toFixed(2)}{evType==="continuous"?"/"+freqLabel[csFreq]:""}</div>
+              {evType==="continuous"&&<div style={{fontSize:10,color:"var(--muted)"}}>€{contractTotal.toFixed(2)} total ({totalDeliveries} deliveries)</div>}
+            </div>
+            <button className="btn btn-s" style={{padding:"8px 16px",fontSize:12}} onClick={()=>window.print()}>Export Proposal</button>
+            <button className="btn btn-p" style={{padding:"8px 16px",fontSize:12}} onClick={()=>setPh(3)}>Add to Cart</button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ CONTENT ═══ */}
+      <div style={{flex:1,maxWidth:1280,margin:"0 auto",width:"100%",padding:"32px 32px"}}>
+
+        {/* ── PHASE 1: Event Setup ── */}
+        {ph===1&&(
+          <div className="fin" style={{maxWidth:720}}>
+            <h1 style={{fontFamily:"var(--fh)",fontSize:"2.2rem",fontWeight:500,marginBottom:8}}>Set up your event</h1>
+            <p style={{color:"var(--muted)",marginBottom:32,fontSize:15}}>Tell us about your event and we'll create the perfect table setting.</p>
+
+            <div className="pnl" style={{marginBottom:16}}>
+              <div className="pnl-t">Event details</div>
+              <input className="inp" placeholder="Event or restaurant name" value={evName} onChange={e=>setEvName(e.target.value)} style={{marginBottom:12}}/>
+              <div style={{display:"flex",gap:8,marginBottom:16}}>
+                {["once","continuous"].map(t=><button key={t} className={"chip"+(evType===t?" on":"")} onClick={()=>setEvType(t)}>{t==="once"?"One-time Event":"Continuous Supply"}</button>)}
+              </div>
+            </div>
+
+            {/* Continuous Supply fields */}
+            {evType==="continuous"&&(
+              <div className="pnl" style={{marginBottom:16}}>
+                <div className="pnl-t">Supply schedule</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:12}}>
+                  <div>
+                    <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:6}}>Duration</label>
+                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                      {[["6m","6 months"],["12m","1 year"],["24m","2 years"],["unlimited","Unlimited"]].map(([v,l])=>(
+                        <button key={v} className={"chip"+(csDuration===v?" on":"")} onClick={()=>setCsDuration(v)} style={{padding:"6px 12px",fontSize:12}}>{l}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:6}}>Delivery frequency</label>
+                    <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                      {[["weekly","Weekly"],["monthly","Monthly"],["quarterly","Quarterly"]].map(([v,l])=>(
+                        <button key={v} className={"chip"+(csFreq===v?" on":"")} onClick={()=>setCsFreq(v)} style={{padding:"6px 12px",fontSize:12}}>{l}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+                  <div>
+                    <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:4}}>Meals per</label>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <button className="qb" onClick={()=>setCsMeals(Math.max(1,csMeals-10))}>−</button>
+                      <input className="qi" style={{width:72}} type="number" value={csMeals} onChange={e=>setCsMeals(Math.max(1,+e.target.value||1))}/>
+                      <button className="qb" onClick={()=>setCsMeals(csMeals+10)}>+</button>
+                      <div style={{display:"flex",gap:4}}>
+                        {[["day","Day"],["week","Week"],["month","Month"]].map(([v,l])=>(
+                          <button key={v} className={"chip"+(csMealBasis===v?" on":"")} onClick={()=>setCsMealBasis(v)} style={{padding:"4px 10px",fontSize:11}}>{l}</button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:4}}>Number of tables</label>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <button className="qb" onClick={()=>setCsTables(Math.max(1,csTables-1))}>−</button>
+                      <input className="qi" style={{width:72}} type="number" value={csTables} onChange={e=>setCsTables(Math.max(1,+e.target.value||1))}/>
+                      <button className="qb" onClick={()=>setCsTables(csTables+1)}>+</button>
+                    </div>
+                    <div style={{fontSize:10,color:"var(--g300)",marginTop:4}}>Table covers change ~1×/day</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="pnl" style={{marginBottom:16}}>
+              <div className="pnl-t">Mood</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+                {MOODS.map(m=>(
+                  <div key={m.id} className={"mood"+(mood===m.id?" on":"")} onClick={()=>setMood(m.id)}>
+                    <div style={{width:32,height:32,borderRadius:"50%",background:m.color,margin:"0 auto 8px"}}/>
+                    <div style={{fontFamily:"var(--fh)",fontWeight:700,fontSize:14}}>{m.name}</div>
+                    <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{m.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {evType==="once"&&(<div className="pnl" style={{marginBottom:16}}>
+              <div className="pnl-t">Guests & tables</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+                <div>
+                  <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:4}}>Number of guests</label>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <button className="qb" onClick={()=>setGuests(Math.max(1,guests-10))}>−</button>
+                    <input className="qi" style={{width:72}} type="number" value={guests} onChange={e=>{setGuests(Math.max(1,+e.target.value||1));setTablesManual(false);}}/>
+                    <button className="qb" onClick={()=>{setGuests(guests+10);setTablesManual(false);}}>+</button>
+                  </div>
+                </div>
+                <div>
+                  <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:4}}>Tables (auto: {autoTables()})</label>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <button className="qb" onClick={()=>{setTables(Math.max(1,(tablesManual?tables:autoTables())-1));setTablesManual(true);}}>−</button>
+                    <input className="qi" style={{width:72}} type="number" value={tablesManual?tables:autoTables()} onChange={e=>{setTables(Math.max(1,+e.target.value||1));setTablesManual(true);}}/>
+                    <button className="qb" onClick={()=>{setTables((tablesManual?tables:autoTables())+1);setTablesManual(true);}}>+</button>
+                  </div>
+                </div>
+              </div>
+              <div style={{marginTop:12}}>
+                <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:6}}>Table shape</label>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{TABLES.map(t=><button key={t.id} className={"chip"+(tableShape===t.id?" on":"")} onClick={()=>{setTableShape(t.id);setTablesManual(false);}}>{t.name} ({t.seats} seats)</button>)}</div>
+              </div>
+              <div style={{marginTop:12}}>
+                <label style={{fontSize:12,fontWeight:600,color:"var(--muted)",display:"block",marginBottom:6}}>Service style</label>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{SERVICES.map(s=><button key={s.id} className={"chip"+(service===s.id?" on":"")} onClick={()=>setService(s.id)}>{s.name}</button>)}</div>
+              </div>
+            </div>)}
+
+            <div className="pnl" style={{marginBottom:24}}>
+              <div className="pnl-t">Logo (optional)</div>
+              <div style={{border:"2px dashed var(--g300)",borderRadius:"var(--r)",padding:24,textAlign:"center",cursor:"pointer",marginBottom:12}}>
+                <div style={{fontSize:13,fontWeight:500,color:"var(--muted)"}}>Drag logo here or click to upload</div>
+                <div style={{fontSize:11,color:"var(--g300)",marginTop:4}}>SVG, PNG · max 10 MB</div>
+              </div>
+              <div style={{display:"flex",gap:12}}>
+                <div style={{border:"2px solid var(--primary)",borderRadius:"var(--r)",padding:10,background:"var(--bg2)",display:"flex",flexDirection:"column",alignItems:"center",gap:4,cursor:"pointer",position:"relative",minWidth:100}}>
+                  <div style={{position:"absolute",top:4,right:4,width:16,height:16,borderRadius:"50%",background:"var(--primary)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <span style={{color:"#fff",fontSize:10,fontWeight:800}}>✓</span>
+                  </div>
+                  <div style={{width:100,height:36,background:"#0066A1",borderRadius:"var(--rs)",display:"flex",alignItems:"center",justifyContent:"center"}}><SybitSVG/></div>
+                  <span style={{fontSize:10,fontWeight:600,color:"var(--primary)"}}>Sybit GmbH</span>
+                </div>
+              </div>
+            </div>
+
+            <button className="btn btn-p btn-full" style={{padding:"14px 24px",fontSize:15}} disabled={!mood} onClick={generateSet}>
+              Generate Set
+            </button>
+          </div>
+        )}
+
+        {/* ── PHASE 2: Set Composition ── */}
+        {ph===2&&(
+          <div className="fin" style={{display:"grid",gridTemplateColumns:"340px 1fr",gap:24}} className="g2">
+            {/* LEFT: Product list (sticky) */}
+            <div style={{position:"sticky",top:140,alignSelf:"start",maxHeight:"calc(100vh - 160px)",overflowY:"auto",display:"flex",flexDirection:"column",gap:8}}>
+              {items.map(i=>(
+                <div key={i.id} className={"si"+(selId===i.id?" on":"")} onClick={()=>setSelId(i.id)}>
+                  <div className="img-box" style={{width:48,height:48}}><Img id={i.color.img} w={48} h={48} cover/></div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{i.prod.name}</div>
+                    <div style={{fontSize:11,color:"var(--muted)"}}>{i.color.n} · Qty: {i.qty}</div>
+                  </div>
+                  <div style={{fontSize:13,fontWeight:700,whiteSpace:"nowrap"}}>€{itemTotal(i).toFixed(2)}</div>
+                  <button onClick={e=>{e.stopPropagation();rmItem(i.id);}} style={{background:"none",border:"none",color:"var(--g300)",cursor:"pointer",fontSize:16,padding:0}}>×</button>
+                </div>
+              ))}
+              <button className="btn btn-s btn-full" style={{marginTop:4}} onClick={()=>{setShowAdd(true);setAddStep(1);setAddCat(null);setAddProd(null);}}>+ Add Product</button>
+            </div>
+
+            {/* RIGHT: Detail panel */}
+            <div>
+              {sel?(
+                <div className="fin" style={{display:"flex",flexDirection:"column",gap:16}}>
+                  {/* Product header */}
+                  <div className="pnl" style={{display:"flex",gap:24,alignItems:"flex-start"}}>
+                    <div className="img-box" style={{width:180,height:180}}><Img id={sel.color.img} w={180} h={180}/></div>
+                    <div style={{flex:1}}>
+                      <h3 style={{fontSize:"1.3rem",marginBottom:4}}>{sel.prod.name}</h3>
+                      <div style={{fontSize:13,color:"var(--muted)",marginBottom:8}}>Material: {sel.prod.mat}</div>
+                      <div style={{display:"flex",gap:4,flexWrap:"wrap",marginBottom:12}}>
+                        {sel.prod.certs.map(c=><span key={c} className={"badge "+(isEco(c)?"badge-eco":"badge-d")}>{c}</span>)}
+                      </div>
+                      <div style={{fontFamily:"var(--fh)",fontSize:"1.5rem",fontWeight:700}}>€{itemTotal(sel).toFixed(2)}</div>
+                      <div style={{fontSize:12,color:"var(--muted)"}}>€{(sel.prod.price+custCost(sel)).toFixed(2)} × {sel.qty} units{custCost(sel)>0?" (incl. €"+custCost(sel).toFixed(2)+" customization)":""}</div>
+                    </div>
+                  </div>
+
+                  {/* Colour */}
+                  <div className="pnl">
+                    <div className="pnl-t">Colour: <span style={{color:"var(--text)"}}>{sel.color.n}</span></div>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                      {sel.prod.vars.map(v=>(
+                        <div key={v.n} className={"sw"+(sel.color.n===v.n?" on":"")+(v.l?" lt":"")} style={{background:v.h}}
+                          onClick={()=>upItem(sel.id,i=>({...i,color:v}))} title={v.n}/>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Size */}
+                  {sel.prod.sizes.length>1&&(
+                    <div className="pnl">
+                      <div className="pnl-t">Article size</div>
+                      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                        {sel.prod.sizes.map(s=><button key={s} className={"chip"+(sel.sz===s?" on":"")} onClick={()=>upItem(sel.id,i=>({...i,sz:s}))}>{s}</button>)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pack size */}
+                  <div className="pnl">
+                    <div className="pnl-t">Pack size</div>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                      {sel.prod.packs.map(p=><button key={p} className={"chip"+(sel.pk===p?" on":"")} onClick={()=>upItem(sel.id,i=>({...i,pk:p}))}>{p}</button>)}
+                    </div>
+                  </div>
+
+                  {/* Quantity */}
+                  <div className="pnl">
+                    <div className="pnl-t">Quantity</div>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <button className="qb" onClick={()=>upItem(sel.id,i=>({...i,qty:Math.max(1,i.qty-1)}))}>−</button>
+                      <input className="qi" type="number" value={sel.qty} onChange={e=>upItem(sel.id,i=>({...i,qty:Math.max(1,+e.target.value||1)}))}/>
+                      <button className="qb" onClick={()=>upItem(sel.id,i=>({...i,qty:i.qty+1}))}>+</button>
+                      <span style={{fontSize:12,color:"var(--muted)",marginLeft:8}}>{sel.qty>=50?"−15% discount":sel.qty>=20?"−10% discount":sel.qty>=10?"−5% discount":"From 10: 5% off"}</span>
+                    </div>
+                  </div>
+
+                  {/* Customization */}
+                  {sel.prod.cust&&(
+                    <div style={{borderTop:"2px solid var(--g200)",paddingTop:20}}>
+                      <h4 style={{fontSize:"1.1rem",marginBottom:4}}>Customization</h4>
+                      <p style={{fontSize:12,color:"var(--muted)",marginBottom:12}}>Optional — personalize this product</p>
+
+                      <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:12}}>
+                        {CUST.map(ct=>{const on=sel.custs.includes(ct.id);return(
+                          <div key={ct.id} className={"cc"+(on?" on":"")} onClick={()=>togCust(sel.id,ct.id)}>
+                            <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{ct.name} <span style={{fontWeight:400,color:"var(--primary)",fontSize:11}}>+€{ct.cost.toFixed(2)}/unit</span></div><div style={{fontSize:11,color:"var(--muted)"}}>{ct.desc}</div></div>
+                            <div className="ck">{on?"✓":""}</div>
+                          </div>
+                        );})}
+                      </div>
+
+                      {sel.custs.includes("text")&&(
+                        <div className="pnl" style={{marginBottom:12}}>
+                          <div className="pnl-t">Text print</div>
+                          <input className="inp" value={sel.cText} onChange={e=>upItem(sel.id,i=>({...i,cText:e.target.value}))} placeholder="e.g. restaurant name" maxLength={40}/>
+                          <div style={{fontSize:11,color:"var(--g300)",marginTop:4}}>{sel.cText.length}/40</div>
+                        </div>
+                      )}
+
+                      {sel.custs.includes("logo")&&(
+                        <div className="pnl" style={{marginBottom:12}}>
+                          <div className="pnl-t">Logo</div>
+                          <div style={{border:"2px dashed var(--g300)",borderRadius:"var(--r)",padding:20,textAlign:"center",cursor:"pointer",marginBottom:10}}>
+                            <div style={{fontSize:12,color:"var(--muted)"}}>Upload logo or drag here</div>
+                          </div>
+                          <div style={{fontSize:11,fontWeight:600,color:"var(--muted)",marginBottom:6}}>Existing logos</div>
+                          <div style={{display:"flex",gap:10}}>
+                            <div style={{border:"2px solid var(--primary)",borderRadius:"var(--r)",padding:8,background:"var(--bg2)",display:"flex",flexDirection:"column",alignItems:"center",gap:4,cursor:"pointer",position:"relative"}}>
+                              <div style={{position:"absolute",top:3,right:3,width:14,height:14,borderRadius:"50%",background:"var(--primary)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#fff",fontSize:8,fontWeight:800}}>✓</span></div>
+                              <div style={{width:80,height:28,background:"#0066A1",borderRadius:"var(--rs)",display:"flex",alignItems:"center",justifyContent:"center"}}><SybitSVG/></div>
+                              <span style={{fontSize:9,fontWeight:600,color:"var(--primary)"}}>Sybit GmbH</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {sel.custs.length>0&&(
+                        <div className="pnl">
+                          <div className="pnl-t">Print colours</div>
+                          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                            {PRINT.map((po,i)=><button key={po.name} className={"chip"+(sel.pIdx===i?" on":"")} onClick={()=>upItem(sel.id,it=>({...it,pIdx:i}))}>{po.name}</button>)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Cross-sell */}
+                  {getSuggestions().length>0&&(
+                    <div style={{borderTop:"2px solid var(--g200)",paddingTop:20}}>
+                      <div className="pnl-t">Complete the Look</div>
+                      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                        {getSuggestions().map(p=>(
+                          <div key={p.id} className="card" style={{flex:"1 1 160px",display:"flex",gap:10,alignItems:"center",padding:10}} onClick={()=>addSuggestion(p)}>
+                            <div className="img-box" style={{width:40,height:40}}><Img id={p.img} w={40} h={40} cover/></div>
+                            <div style={{flex:1}}><div style={{fontSize:12,fontWeight:600}}>{p.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>€{p.price.toFixed(2)}</div></div>
+                            <span style={{fontSize:18,color:"var(--primary)",fontWeight:700}}>+</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ):(
+                <div style={{textAlign:"center",padding:48,color:"var(--g300)"}}>Select a product from the list</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── PHASE 3: Cart ── */}
+        {ph===3&&(
+          <div className="fin">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+              <h2 style={{fontFamily:"var(--fh)",fontSize:"1.5rem"}}>Cart / Order Summary</h2>
+              <div style={{display:"flex",gap:8}}>
+                <button className="btn btn-s" onClick={()=>setPh(2)}>← Back to Set</button>
+                <button className="btn btn-s" onClick={()=>window.print()}>Export Proposal</button>
+                <button className="btn btn-p" onClick={()=>alert("Order submitted! ✅")}>Place Order</button>
+              </div>
+            </div>
+
+            {/* Document */}
+            <div style={{background:"#fff",maxWidth:800,margin:"0 auto",padding:48,boxShadow:"0 2px 16px rgba(0,0,0,.08)",borderRadius:2}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",paddingBottom:20,borderBottom:"3px solid var(--primary)",marginBottom:32}}>
+                <div><DuniLogo h={28}/><div style={{fontFamily:"var(--fh)",fontSize:"1.4rem",fontWeight:600,marginTop:12}}>{evName||"Product Configuration"}</div><div style={{fontSize:12,color:"var(--muted)",marginTop:2}}>Custom table setting proposal</div></div>
+                <div style={{textAlign:"right",fontSize:11,color:"var(--muted)",lineHeight:1.8}}><div style={{fontWeight:700}}>Date: {new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}</div><div>Ref: CFG-{Date.now().toString(36).toUpperCase().slice(-6)}</div></div>
+              </div>
+
+              {/* Eco score */}
+              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:24,padding:16,background:"var(--bg2)",borderRadius:"var(--r)"}}>
+                <span style={{fontSize:12,fontWeight:700,color:"var(--muted)"}}>SUSTAINABILITY SCORE</span>
+                <div className="eco-bar" style={{height:14}}><div className="eco-fill" style={{width:ecoScore+"%",height:14}}/></div>
+                <span style={{fontFamily:"var(--fh)",fontSize:22,fontWeight:700,color:"var(--pist)"}}>{ecoScore}%</span>
+              </div>
+
+              {/* Items */}
+              {items.map((i,idx)=>(
+                <div key={i.id} style={{display:"flex",gap:20,padding:"16px 0",borderBottom:idx<items.length-1?"1px solid var(--g200)":"none"}}>
+                  <div className="img-box" style={{width:80,height:80}}><Img id={i.color.img} w={80} h={80} cover/></div>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",justifyContent:"space-between"}}>
+                      <div><div style={{fontFamily:"var(--fh)",fontWeight:700,marginBottom:2}}>{i.prod.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>Material: {i.prod.mat}</div></div>
+                      <div style={{textAlign:"right"}}><div style={{fontFamily:"var(--fh)",fontSize:16,fontWeight:700}}>€{itemTotal(i).toFixed(2)}</div><div style={{fontSize:11,color:"var(--muted)"}}>€{(i.prod.price+custCost(i)).toFixed(2)} × {i.qty}</div></div>
+                    </div>
+                    <div style={{display:"flex",gap:16,marginTop:8,fontSize:12,color:"var(--muted)"}}>
+                      <span style={{display:"flex",alignItems:"center",gap:4}}><span style={{width:10,height:10,borderRadius:"50%",background:i.color.h,border:i.color.l?"1px solid #ccc":"none"}}/>{i.color.n}</span>
+                      <span>Size: {i.sz}</span><span>Pack: {i.pk}</span>
+                    </div>
+                    {i.custs.length>0&&<div style={{display:"flex",gap:4,marginTop:6}}>{i.custs.map(c=><span key={c} className="badge badge-t">{CUST.find(x=>x.id===c)?.name}</span>)}{i.cText&&<span style={{fontSize:11,color:"var(--muted)",fontStyle:"italic"}}>"{i.cText}"</span>}</div>}
+                    <div style={{display:"flex",gap:3,marginTop:6}}>{i.prod.certs.map(c=><span key={c} style={{fontSize:10,fontWeight:600,padding:"1px 5px",borderRadius:2,background:isEco(c)?"var(--pist)":"var(--g100)",color:isEco(c)?"#fff":"var(--corp)"}}>{c}</span>)}</div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Totals */}
+              <div style={{marginTop:24,padding:20,background:"var(--bg2)",borderRadius:"var(--r)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:6}}><span style={{color:"var(--muted)"}}>Products</span><span style={{fontWeight:600}}>{items.length} items</span></div>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:6}}><span style={{color:"var(--muted)"}}>Total units per delivery</span><span style={{fontWeight:600}}>{items.reduce((s,i)=>s+i.qty,0)}</span></div>
+                <div style={{borderTop:"2px solid var(--primary)",paddingTop:12,marginTop:8,display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+                  <span style={{fontFamily:"var(--fh)",fontSize:13,fontWeight:700,textTransform:"uppercase",color:"var(--corp)"}}>{evType==="continuous"?"Per "+freqLabel[csFreq]:"Estimated Total"}</span>
+                  <span style={{fontFamily:"var(--fh)",fontSize:"1.8rem",fontWeight:700}}>€{totalPrice.toFixed(2)}</span>
+                </div>
+                {evType==="continuous"&&(
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginTop:8,paddingTop:8,borderTop:"1px solid var(--g200)"}}>
+                    <span style={{color:"var(--muted)"}}>Contract total ({totalDeliveries} deliveries, {csDuration==="unlimited"?"unlimited":csDuration})</span>
+                    <span style={{fontFamily:"var(--fh)",fontWeight:700,fontSize:16}}>€{contractTotal.toFixed(2)}</span>
+                  </div>
+                )}
+                <div style={{textAlign:"right",fontSize:11,color:"var(--muted)",marginTop:2}}>Excl. VAT & shipping</div>
+              </div>
+
+              <div style={{marginTop:32,paddingTop:16,borderTop:"1px solid var(--g200)",display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+                <div style={{fontSize:10,color:"var(--g300)",lineHeight:1.6}}><div>Non-binding proposal. Contact your DUNI sales rep for a final quote.</div><div>Generated by DUNI Tabletop Assistant</div></div>
+                <DuniLogo h={16}/>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ═══ IMPROVE ECO OVERLAY ═══ */}
+      {showImprove&&(
+        <div className="modal-ov" onClick={()=>setShowImprove(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()} style={{padding:0,maxWidth:640}}>
+            <div style={{padding:"16px 24px",borderBottom:"1px solid var(--g200)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div><h3 style={{fontSize:16}}>Improve Sustainability</h3><div style={{fontSize:12,color:"var(--muted)"}}>Current Eco Score: <b style={{color:"var(--pist)"}}>{ecoScore}%</b></div></div>
+              <button onClick={()=>setShowImprove(false)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"var(--g300)"}}>×</button>
+            </div>
+            <div style={{padding:24,maxHeight:400,overflowY:"auto"}}>
+              {items.filter(i=>!i.prod.eco).length===0?(
+                <div style={{textAlign:"center",padding:24,color:"var(--pist)"}}>
+                  <div style={{fontSize:32,marginBottom:8}}>🌿</div>
+                  <div style={{fontFamily:"var(--fh)",fontWeight:700}}>Your set is already 100% sustainable!</div>
+                </div>
+              ):(
+                <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                  <div style={{fontSize:13,color:"var(--muted)",marginBottom:4}}>These items have more sustainable alternatives:</div>
+                  {items.filter(i=>!i.prod.eco).map(i=>{
+                    const altId=ECO_ALT[i.pid];
+                    const alt=altId&&altId!==i.pid?findP(altId):null;
+                    return(
+                      <div key={i.id} style={{border:"1px solid var(--g200)",borderRadius:"var(--r)",padding:16,display:"flex",gap:16,alignItems:"center"}}>
+                        <div style={{flex:1}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                            <div className="img-box" style={{width:36,height:36}}><Img id={i.color.img} w={36} h={36} cover/></div>
+                            <div><div style={{fontSize:13,fontWeight:600}}>{i.prod.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>{i.color.n} · Qty: {i.qty}</div></div>
+                          </div>
+                        </div>
+                        <div style={{fontSize:18,color:"var(--g300)"}}>→</div>
+                        {alt?(
+                          <div style={{flex:1,background:"rgba(147,197,114,.08)",borderRadius:"var(--rs)",padding:8}}>
+                            <div style={{display:"flex",alignItems:"center",gap:8}}>
+                              <div className="img-box" style={{width:36,height:36}}><Img id={alt.img} w={36} h={36} cover/></div>
+                              <div><div style={{fontSize:13,fontWeight:600,color:"var(--pist)"}}>{alt.name}</div>
+                                <div style={{display:"flex",gap:3,marginTop:2}}>{alt.certs.filter(c=>isEco(c)).map(c=><span key={c} className="badge badge-eco" style={{fontSize:9}}>{c}</span>)}</div>
+                              </div>
+                            </div>
+                            <button className="btn btn-p" style={{padding:"4px 12px",fontSize:11,marginTop:8,width:"100%"}} onClick={()=>{
+                              upItem(i.id,it=>({...it,pid:alt.id,prod:alt,color:alt.vars[0],sz:alt.sizes[0],pk:alt.packs[0]}));
+                            }}>Switch to {alt.name}</button>
+                          </div>
+                        ):(
+                          <div style={{flex:1,padding:8,color:"var(--g300)",fontSize:12}}>No eco alternative in catalogue</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div style={{padding:"12px 24px",borderTop:"1px solid var(--g200)",display:"flex",justifyContent:"flex-end"}}>
+              <button className="btn btn-g" onClick={()=>setShowImprove(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ ADD PRODUCT MODAL ═══ */}
+      {showAdd&&(
+        <div className="modal-ov" onClick={()=>setShowAdd(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()} style={{padding:0}}>
+            <div style={{padding:"16px 24px",borderBottom:"1px solid var(--g200)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <h3 style={{fontSize:16}}>{addStep===1?"Choose Category":addStep===2?"Choose Product":"Configure Variant"}</h3>
+              <button onClick={()=>setShowAdd(false)} style={{background:"none",border:"none",fontSize:20,cursor:"pointer",color:"var(--g300)"}}>×</button>
+            </div>
+            <div style={{padding:24,minHeight:300}}>
+              {addStep===1&&(
+                <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:12}}>
+                  {Object.entries(P).map(([k,v])=>(
+                    <div key={k} className={"card"+(addCat===k?" on":"")} style={{borderColor:addCat===k?"var(--primary)":"var(--g200)"}} onClick={()=>{setAddCat(k);setAddProd(null);setAddStep(2);}}>
+                      <div style={{fontFamily:"var(--fh)",fontWeight:700,fontSize:15}}>{v.cat}</div>
+                      <div style={{fontSize:12,color:"var(--muted)"}}>{v.items.length} products</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {addStep===2&&addCat&&(
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  <button onClick={()=>setAddStep(1)} style={{background:"none",border:"none",color:"var(--primary)",cursor:"pointer",fontSize:13,padding:0,textAlign:"left"}}>← Back to categories</button>
+                  {P[addCat].items.map(p=>(
+                    <div key={p.id} className="card" style={{display:"flex",gap:16,alignItems:"center",borderColor:addProd===p.id?"var(--primary)":"var(--g200)"}} onClick={()=>{setAddProd(p.id);setAddStep(3);}}>
+                      <div className="img-box" style={{width:64,height:64}}><Img id={p.img} w={64} h={64} cover/></div>
+                      <div style={{flex:1}}><div style={{fontWeight:600,fontSize:14}}>{p.name}</div><div style={{fontSize:12,color:"var(--muted)"}}>{p.mat}</div>
+                        <div style={{display:"flex",gap:4,marginTop:4}}>{p.certs.map(c=><span key={c} className={"badge "+(isEco(c)?"badge-eco":"badge-d")} style={{fontSize:10}}>{c}</span>)}</div>
+                      </div>
+                      <div style={{fontFamily:"var(--fh)",fontWeight:700}}>€{p.price.toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {addStep===3&&addProd&&(()=>{
+                const pr=findP(addProd);
+                if(!pr)return null;
+                return(
+                  <div>
+                    <button onClick={()=>setAddStep(2)} style={{background:"none",border:"none",color:"var(--primary)",cursor:"pointer",fontSize:13,padding:0,marginBottom:12}}>← Back to products</button>
+                    <div style={{display:"flex",gap:16,alignItems:"center",marginBottom:16}}>
+                      <div className="img-box" style={{width:80,height:80}}><Img id={pr.img} w={80} h={80}/></div>
+                      <div><div style={{fontFamily:"var(--fh)",fontWeight:700,fontSize:16}}>{pr.name}</div><div style={{fontSize:12,color:"var(--muted)"}}>{pr.mat} · €{pr.price.toFixed(2)}</div></div>
+                    </div>
+                    <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",marginBottom:6}}>Colour</div>
+                    <div style={{display:"flex",gap:6,marginBottom:12}}>{pr.vars.map(v=><div key={v.n} className={"sw"+(v.l?" lt":"")} style={{background:v.h,width:24,height:24}} title={v.n}/>)}</div>
+                    {pr.sizes.length>1&&(<><div style={{fontSize:12,fontWeight:600,color:"var(--muted)",marginBottom:6}}>Size</div><div style={{display:"flex",gap:6,marginBottom:12}}>{pr.sizes.map(s=><span key={s} className="chip" style={{padding:"4px 10px",fontSize:12}}>{s}</span>)}</div></>)}
+                    <div style={{fontSize:12,fontWeight:600,color:"var(--muted)",marginBottom:6}}>Pack size</div>
+                    <div style={{display:"flex",gap:6,marginBottom:16}}>{pr.packs.map(p=><span key={p} className="chip" style={{padding:"4px 10px",fontSize:12}}>{p}</span>)}</div>
+                  </div>
+                );
+              })()}
+            </div>
+            <div style={{padding:"16px 24px",borderTop:"1px solid var(--g200)",display:"flex",justifyContent:"flex-end",gap:8}}>
+              <button className="btn btn-g" onClick={()=>setShowAdd(false)}>Cancel</button>
+              {addStep===3&&<button className="btn btn-p" onClick={doAddProd}>Add to Set</button>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{background:"var(--corp)",color:"#fff",padding:"32px",textAlign:"center",fontSize:13,opacity:.8,marginTop:48}}>
+        © Duni 2026 · Tabletop Assistant · Prototype · All prices are sample prices · Good Food Mood
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
