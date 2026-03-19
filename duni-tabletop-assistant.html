@@ -115,38 +115,47 @@ function Img({id,w,h,cover}){
 }
 
 /* ─── Products ─── */
+/* pcsPerBox = items per sales unit (box). qty in the set = number of BOXES. */
 const P={
   napkins:{cat:"Napkins",items:[
-    {id:"el-cream",name:"Elegance® Lily Napkin",mat:"Dunilin®",img:"168433",sizes:["33×33cm","40×40cm","48×48cm"],packs:["40 (10×4)","240 (6×40)"],price:66.82,eco:false,cust:true,certs:["FSC®","OK Compost"],
+    {id:"el-cream",name:"Elegance® Lily Napkin",mat:"Dunilin®",img:"168433",pcsPerBox:240,sizes:["33×33cm","40×40cm","48×48cm"],packs:["40 (10×4)","240 (6×40)"],price:66.82,eco:false,cust:true,certs:["FSC®","OK Compost"],
       vars:[{n:"White",h:"#fff",l:1,img:"168432"},{n:"Cream",h:"#F5F0E1",l:1,img:"168433"},{n:"Black",h:"#181818",img:"168438"},{n:"Bordeaux",h:"#800020",img:"174389"},{n:"Red",h:"#CC0000",img:"168436"},{n:"Dark Blue",h:"#1A237E",img:"168435"}]},
-    {id:"ds-white",name:"Dunisoft® Napkin",mat:"Dunisoft® (Airlaid)",img:"168429",sizes:["20×20cm","40×40cm"],packs:["60 (12×5)","180 (6×30)","720 (12×60)"],price:42.50,eco:false,cust:true,certs:["FSC®"],
+    {id:"ds-white",name:"Dunisoft® Napkin",mat:"Dunisoft® (Airlaid)",img:"168429",pcsPerBox:360,sizes:["20×20cm","40×40cm"],packs:["60 (12×5)","180 (6×30)","720 (12×60)"],price:42.50,eco:false,cust:true,certs:["FSC®"],
       vars:[{n:"White",h:"#fff",l:1,img:"168429"},{n:"Black",h:"#181818",img:"199153"},{n:"Grey",h:"#9E9E9E",img:"199153"},{n:"Mandarin",h:"#FF9800",img:"186712"}]},
-    {id:"bio-green",name:"Bio Dunisoft® Napkin",mat:"Bio Dunisoft®",img:"202958",sizes:["40×40cm"],packs:["60 (12×5)","180 (6×30)"],price:55.00,eco:true,cust:false,certs:["FSC®","ecoecho®","OK Compost HOME"],
+    {id:"bio-green",name:"Bio Dunisoft® Napkin",mat:"Bio Dunisoft®",img:"202958",pcsPerBox:360,sizes:["40×40cm"],packs:["60 (12×5)","180 (6×30)"],price:55.00,eco:true,cust:false,certs:["FSC®","ecoecho®","OK Compost HOME"],
       vars:[{n:"White",h:"#fff",l:1,img:"202954"},{n:"Black",h:"#181818",img:"202956"},{n:"Leaf Green",h:"#4CAF50",img:"202958"},{n:"Sand",h:"#D2B48C",img:"202960"}]}
   ]},
   tablecovers:{cat:"Table Covers",items:[
-    {id:"dc-white",name:"Dunicel® Table Cover",mat:"Dunicel®",img:"185453",sizes:["118×160cm","118×220cm","125×220cm"],packs:["25 (5×5)","50 (10×5)"],price:89.00,eco:false,cust:true,certs:["FSC®"],
-      vars:[{n:"White",h:"#fff",l:1,img:"185453"},{n:"Black",h:"#181818",img:"185455"},{n:"Cream",h:"#F5F0E1",l:1,img:"185465"}]},
-    {id:"ev-white",name:"Evolin® Table Cover",mat:"Evolin®",img:"164169",sizes:["110×110cm","127×180cm","127×220cm"],packs:["15 (1×15)","25 (5×5)"],price:125.00,eco:false,cust:true,certs:["FSC®","Premium"],
-      vars:[{n:"White",h:"#fff",l:1,img:"164169"},{n:"Black",h:"#181818",img:"166369"},{n:"Greige",h:"#C8BFA9",img:"174443"}]}
+    {id:"dc-white",name:"Dunicel® Table Cover 118×180cm",mat:"Dunicel®",img:"185705",pcsPerBox:10,sizes:["118×180cm","118×220cm"],packs:["10 (10×1)"],price:48.10,eco:false,cust:true,certs:["FSC®"],
+      vars:[{n:"White",h:"#fff",l:1,img:"185705"},{n:"Cream",h:"#F5F0E1",l:1,img:"185745"},{n:"Bordeaux",h:"#800020",img:"185708"},{n:"Red",h:"#CC0000",img:"185701"},{n:"Dark Blue",h:"#1A237E",img:"185713"}]},
+    {id:"ev-white",name:"Evolin® Table Cover 127×127cm",mat:"Evolin®",img:"164169",pcsPerBox:50,sizes:["127×127cm","127×220cm"],packs:["50 (1×50)"],price:157.50,eco:false,cust:true,certs:["FSC®","Premium"],
+      vars:[{n:"White",h:"#fff",l:1,img:"164169"},{n:"Black",h:"#181818",img:"166369"},{n:"Cream",h:"#F5F0E1",l:1,img:"164169"},{n:"Greige",h:"#C8BFA9",img:"174443"}]}
   ]},
   lamps:{cat:"Candles & LED",items:[
-    {id:"z-gold",name:"LED Zelda Lamp",mat:"Metal / ABS",img:"210394",sizes:["Midi (14cm)","Standard (18cm)"],packs:["1 pc","6 pcs/box"],price:35.60,eco:false,cust:false,certs:["Rechargeable"],
-      vars:[{n:"Black",h:"#181818",img:"210395"},{n:"Gold",h:"#C9A96E",img:"210394"},{n:"Brass",h:"#B5A642",img:"206423"}]}
+    {id:"z-gold",name:"LED Zelda Lamp",mat:"Metal / ABS",img:"210394",pcsPerBox:1,sizes:["Midi (14cm)","Standard (18cm)"],packs:["1 pc","6 pcs/box"],price:35.60,eco:false,cust:false,certs:["Rechargeable"],
+      vars:[{n:"Black",h:"#181818",img:"210395"},{n:"Gold",h:"#C9A96E",img:"210394"},{n:"Brass",h:"#B5A642",img:"206423"}]},
+    {id:"crown-candle",name:"Stearin Crown Candle",mat:"Stearin (190×Ø22mm, 6h)",img:"167731",pcsPerBox:150,sizes:["190×Ø22mm"],packs:["150 (5×30)"],price:118.95,eco:false,cust:false,certs:["Stearin"],
+      vars:[{n:"White",h:"#fff",l:1,img:"167731"},{n:"Cream",h:"#F5F0E1",l:1,img:"195782"},{n:"Bordeaux",h:"#800020",img:"186057"},{n:"Red",h:"#CC0000",img:"186055"},{n:"Grey",h:"#9E9E9E",img:"185724"}]}
+  ]},
+  plates:{cat:"Plates & Bowls",items:[
+    {id:"round-bowl",name:"Round Bowl Ø 18 cm",mat:"Coated Paperboard",img:"192949",pcsPerBox:400,sizes:["Ø 18cm"],packs:["400 (8×50)"],price:57.28,eco:true,cust:false,certs:["Renewable material","Compostable"],
+      vars:[{n:"White",h:"#fff",l:1,img:"192949"}]}
   ]},
   takeaway:{cat:"Take-Away",items:[
-    {id:"bag-bowl",name:"ecoecho® Bagasse Bowl",mat:"Bagasse",img:"205770",sizes:["500ml","750ml","1000ml"],packs:["50 pcs","200 pcs","400 pcs"],price:28.00,eco:true,cust:true,certs:["ecoecho®","OK Compost","Plastic-free"],
+    {id:"bag-bowl",name:"ecoecho® Bagasse Bowl",mat:"Bagasse",img:"205770",pcsPerBox:1,sizes:["500ml","750ml","1000ml"],packs:["50 pcs","200 pcs","400 pcs"],price:28.00,eco:true,cust:true,certs:["ecoecho®","OK Compost","Plastic-free"],
       vars:[{n:"Natural",h:"#D4C5A0",img:"205770"}]},
-    {id:"p-cup",name:"ecoecho® Paper Cup",mat:"Paper (PLA)",img:"205029",sizes:["200ml","350ml","470ml"],packs:["50 pcs","500 pcs","1000 pcs"],price:18.50,eco:true,cust:true,certs:["ecoecho®","OK Compost"],
+    {id:"p-cup",name:"ecoecho® Paper Cup",mat:"Paper (PLA)",img:"205029",pcsPerBox:1,sizes:["200ml","350ml","470ml"],packs:["50 pcs","500 pcs","1000 pcs"],price:18.50,eco:true,cust:true,certs:["ecoecho®","OK Compost"],
       vars:[{n:"White",h:"#fff",l:1,img:"205029"},{n:"Kraft",h:"#C4A96A",img:"199148"}]}
   ]}
 };
 const allItems=Object.values(P).flatMap(c=>c.items);
 const findP=id=>allItems.find(p=>p.id===id);
+/* Convert needed pieces to boxes (round up) */
+const pcsToBoxes=(prod,neededPcs)=>prod.pcsPerBox>1?Math.ceil(neededPcs/prod.pcsPerBox):neededPcs;
 
 const CUST=[{id:"text",name:"Text Print",desc:"Custom text or slogan",cost:2},{id:"logo",name:"Logo Print",desc:"Company logo on the product",cost:2},{id:"emboss",name:"Embossing",desc:"Elegant blind embossing",cost:5},{id:"pattern",name:"Pattern / Design",desc:"Custom pattern or motif",cost:8}];
 /* Eco alternatives mapping */
-const ECO_ALT={"ds-white":"bio-green","dc-white":"dc-white","el-cream":"bio-green","ev-white":"dc-white","z-gold":"z-gold","p-cup":"p-cup","bag-bowl":"bag-bowl"};
+const ECO_ALT={"ds-white":"bio-green","dc-white":"dc-white","el-cream":"bio-green","ev-white":"dc-white","z-gold":"z-gold","p-cup":"p-cup","bag-bowl":"bag-bowl","crown-candle":"crown-candle","round-bowl":"round-bowl"};
 const PRINT=[{name:"1 colour",m:1},{name:"2 colours",m:1.3},{name:"3 colours",m:1.6},{name:"Full colour",m:2}];
 const MOODS=[
   {id:"casual",name:"Casual",desc:"Relaxed, natural, budget-friendly",color:"#8BC34A"},
@@ -213,34 +222,40 @@ function App(){
     const effT=isCont?csTables:effTables;
     const svc=SERVICES.find(s=>s.id===service);
     const napMult=isCont?2:(svc?.napMult||2);
-    const napQty=effGuests*napMult;
+    const napPcs=effGuests*napMult;
     const bt=evName||""; // brand text for pre-fill
+    /* Helper: auto-calculate boxes from needed pieces */
+    const boxQty=(prodId,neededPcs,vIdx,txt)=>{const pr=findP(prodId);return mkItem(pr,pcsToBoxes(pr,neededPcs),vIdx,txt);};
     let list=[];
     if(mood==="casual"){
-      list.push(mkItem(findP("ds-white"),napQty,0,bt));
-      list.push(mkItem(findP("dc-white"),effT));
+      list.push(boxQty("ds-white",napPcs,0,bt));
+      list.push(boxQty("dc-white",effT));
+      list.push(boxQty("round-bowl",effGuests));
     } else if(mood==="fine"){
-      list.push(mkItem(findP("el-cream"),napQty,1,bt));
-      list.push(mkItem(findP("ev-white"),effT));
+      list.push(boxQty("el-cream",napPcs,1,bt));
+      list.push(boxQty("ev-white",effT));
       list.push(mkItem(findP("z-gold"),effT,1));
+      list.push(boxQty("crown-candle",effT*2)); /* ~2 candles per table */
     } else if(mood==="outdoor"){
-      list.push(mkItem(findP("bio-green"),napQty,2,bt));
-      list.push(mkItem(findP("dc-white"),effT));
+      list.push(boxQty("bio-green",napPcs,2,bt));
+      list.push(boxQty("dc-white",effT));
       list.push(mkItem(findP("p-cup"),effGuests,0,bt));
+      list.push(boxQty("round-bowl",effGuests));
     } else if(mood==="event"){
-      list.push(mkItem(findP("ds-white"),napQty,3,bt));
-      list.push(mkItem(findP("dc-white"),effT,1));
+      list.push(boxQty("ds-white",napPcs,3,bt));
+      list.push(boxQty("dc-white",effT,1));
       list.push(mkItem(findP("z-gold"),effT,0));
       list.push(mkItem(findP("bag-bowl"),effGuests,0,bt));
       list.push(mkItem(findP("p-cup"),effGuests,0,bt));
+      list.push(boxQty("round-bowl",effGuests));
     }
     if(!isCont&&service==="cocktail"&&!list.find(i=>i.pid==="bio-green")){
-      list.push(mkItem(findP("bio-green"),effGuests,0));
+      list.push(boxQty("bio-green",effGuests,0));
     }
     // For continuous: add table covers based on daily changes × delivery period
     if(isCont){
       const daysPerDelivery=csFreq==="weekly"?7:csFreq==="monthly"?30:90;
-      list.forEach(i=>{if(i.prod.name.includes("Table Cover"))i.qty=effT*daysPerDelivery;});
+      list.forEach(i=>{if(i.prod.name.includes("Table Cover"))i.qty=pcsToBoxes(i.prod,effT*daysPerDelivery);});
     }
     setItems(list);
     setSelId(list[0]?.id||null);
@@ -272,19 +287,25 @@ function App(){
   // Toggle cust
   const togCust=(itemId,cid)=>upItem(itemId,i=>({...i,custs:i.custs.includes(cid)?i.custs.filter(c=>c!==cid):[...i.custs,cid]}));
 
-  // Smart quantity based on product category and event
+  // Smart quantity based on product category and event (returns BOXES)
   const smartQty=(prod)=>{
     if(!prod)return 1;
     const cat=Object.entries(P).find(([k,v])=>v.items.some(i=>i.id===prod.id));
     if(!cat)return 1;
     const svc=SERVICES.find(s=>s.id===service);
+    const isCont=evType==="continuous";
+    const eg=isCont?csMeals:guests;
+    const et=isCont?csTables:effTables;
+    let neededPcs=1;
     switch(cat[0]){
-      case"napkins":return guests*(svc?.napMult||2);
-      case"tablecovers":return effTables;
-      case"lamps":return effTables;
-      case"takeaway":return guests;
+      case"napkins":neededPcs=eg*(svc?.napMult||2);break;
+      case"tablecovers":neededPcs=et;break;
+      case"lamps":return et;
+      case"plates":neededPcs=eg;break;
+      case"takeaway":return eg;
       default:return 1;
     }
+    return pcsToBoxes(prod,neededPcs);
   };
 
   // Add product from modal
@@ -310,15 +331,21 @@ function App(){
     if(!sel)return[];
     const ids=items.map(i=>i.pid);
     const sugg=[];
-    if(sel.prod.certs.some(c=>c.includes("Napkin")||sel.prod.name.includes("Napkin"))){
+    if(sel.prod.name.includes("Napkin")){
       if(!ids.includes("z-gold"))sugg.push(findP("z-gold"));
       if(!ids.includes("dc-white"))sugg.push(findP("dc-white"));
+      if(!ids.includes("crown-candle"))sugg.push(findP("crown-candle"));
     }
     if(sel.prod.name.includes("Table Cover")){
       if(!ids.includes("el-cream"))sugg.push(findP("el-cream"));
+      if(!ids.includes("crown-candle"))sugg.push(findP("crown-candle"));
     }
-    if(sel.prod.name.includes("Zelda")){
+    if(sel.prod.name.includes("Zelda")||sel.prod.name.includes("Candle")){
       if(!ids.includes("ev-white"))sugg.push(findP("ev-white"));
+    }
+    if(sel.prod.name.includes("Bowl")||sel.prod.name.includes("Cup")){
+      if(!ids.includes("round-bowl"))sugg.push(findP("round-bowl"));
+      if(!ids.includes("ds-white"))sugg.push(findP("ds-white"));
     }
     // Always suggest something if nothing matched
     if(!sugg.length){
@@ -350,7 +377,7 @@ function App(){
       </div>
 
       {/* ═══ STICKY SUMMARY BAR (Phase 2+) ═══ */}
-      {ph>=2&&items.length>0&&(
+      {ph===2&&items.length>0&&(
         <div style={{background:"var(--bg)",borderBottom:"1px solid var(--g200)",padding:"10px 32px",position:"sticky",top:64,zIndex:99}}>
           <div style={{maxWidth:1280,margin:"0 auto",display:"flex",alignItems:"center",gap:20}}>
             <h2 style={{fontFamily:"var(--fh)",fontSize:"1.75rem",fontWeight:700,flex:"0 0 auto"}}>{evName||"Untitled Event"}</h2>
@@ -512,7 +539,7 @@ function App(){
                   <div className="img-box" style={{width:48,height:48}}><Img id={i.color.img} w={48} h={48} cover/></div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{i.prod.name}</div>
-                    <div style={{fontSize:11,color:"var(--muted)"}}>{i.color.n} · Qty: {i.qty}</div>
+                    <div style={{fontSize:11,color:"var(--muted)"}}>{i.color.n} · {i.prod.pcsPerBox>1?i.qty+" box"+(i.qty>1?"es":"")+" ("+i.qty*i.prod.pcsPerBox+" pcs)":"Qty: "+i.qty}</div>
                   </div>
                   <div style={{fontSize:13,fontWeight:700,whiteSpace:"nowrap"}}>€{itemTotal(i).toFixed(2)}</div>
                   <button onClick={e=>{e.stopPropagation();rmItem(i.id);}} style={{background:"none",border:"none",color:"var(--g300)",cursor:"pointer",fontSize:16,padding:0}}>×</button>
@@ -535,7 +562,8 @@ function App(){
                         {sel.prod.certs.map(c=><span key={c} className={"badge "+(isEco(c)?"badge-eco":"badge-d")}>{c}</span>)}
                       </div>
                       <div style={{fontFamily:"var(--fh)",fontSize:"1.5rem",fontWeight:700}}>€{itemTotal(sel).toFixed(2)}</div>
-                      <div style={{fontSize:12,color:"var(--muted)"}}>€{(sel.prod.price+custCost(sel)).toFixed(2)} × {sel.qty} units{custCost(sel)>0?" (incl. €"+custCost(sel).toFixed(2)+" customization)":""}</div>
+                      <div style={{fontSize:12,color:"var(--muted)"}}>€{(sel.prod.price+custCost(sel)).toFixed(2)} × {sel.qty} {sel.prod.pcsPerBox>1?"boxes":"units"}{custCost(sel)>0?" (incl. €"+custCost(sel).toFixed(2)+" cust.)":""}</div>
+                      {sel.prod.pcsPerBox>1&&<div style={{fontSize:11,color:"var(--primary)"}}>= {sel.qty*sel.prod.pcsPerBox} pieces ({sel.prod.pcsPerBox} per box)</div>}
                     </div>
                   </div>
 
@@ -686,7 +714,7 @@ function App(){
                   <div style={{flex:1}}>
                     <div style={{display:"flex",justifyContent:"space-between"}}>
                       <div><div style={{fontFamily:"var(--fh)",fontWeight:700,marginBottom:2}}>{i.prod.name}</div><div style={{fontSize:11,color:"var(--muted)"}}>Material: {i.prod.mat}</div></div>
-                      <div style={{textAlign:"right"}}><div style={{fontFamily:"var(--fh)",fontSize:16,fontWeight:700}}>€{itemTotal(i).toFixed(2)}</div><div style={{fontSize:11,color:"var(--muted)"}}>€{(i.prod.price+custCost(i)).toFixed(2)} × {i.qty}</div></div>
+                      <div style={{textAlign:"right"}}><div style={{fontFamily:"var(--fh)",fontSize:16,fontWeight:700}}>€{itemTotal(i).toFixed(2)}</div><div style={{fontSize:11,color:"var(--muted)"}}>€{(i.prod.price+custCost(i)).toFixed(2)} × {i.qty}{i.prod.pcsPerBox>1?" boxes":""}</div>{i.prod.pcsPerBox>1&&<div style={{fontSize:10,color:"var(--primary)"}}>{i.qty*i.prod.pcsPerBox} pcs total</div>}</div>
                     </div>
                     <div style={{display:"flex",gap:16,marginTop:8,fontSize:12,color:"var(--muted)"}}>
                       <span style={{display:"flex",alignItems:"center",gap:4}}><span style={{width:10,height:10,borderRadius:"50%",background:i.color.h,border:i.color.l?"1px solid #ccc":"none"}}/>{i.color.n}</span>
