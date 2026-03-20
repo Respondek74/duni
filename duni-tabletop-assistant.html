@@ -90,7 +90,10 @@ h1,h2,h3,h4{font-family:var(--fh);font-weight:500}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
 
 /* Fade */
-.fin{animation:fi .2s ease-out}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fin{animation:fi .25s ease-out}@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Slide transitions */
+.slide-down{animation:sd .3s ease-out}@keyframes sd{from{opacity:0;max-height:0;transform:translateY(-12px)}to{opacity:1;max-height:2000px;transform:translateY(0)}}
 
 @media(max-width:768px){.g2{grid-template-columns:1fr!important}}
 </style>
@@ -182,7 +185,7 @@ function App(){
   // Event setup
   const [evName,setEvName]=useState("");
   const [evType,setEvType]=useState("once");
-  const [mood,setMood]=useState(null);
+  const [mood,setMood]=useState("casual");
   const [guests,setGuests]=useState(50);
   const [tableShape,setTableShape]=useState("r150");
   const [tables,setTables]=useState(8);
@@ -366,33 +369,49 @@ function App(){
             <span style={{fontFamily:"var(--fh)",fontSize:13,fontWeight:500,color:"var(--muted)"}}>Tabletop Assistant</span>
           </div>
           <div style={{display:"flex",gap:8}}>
-            {[["Event Setup",1],["Set Composition",2],["Cart",3]].map(([l,n])=>(
-              <button key={n} onClick={()=>(n<=ph||generated)&&setPh(n)} style={{
-                fontFamily:"var(--fb)",fontSize:12,fontWeight:600,padding:"6px 14px",borderRadius:"var(--r)",border:"1px solid "+(n===ph?"var(--primary)":"var(--g200)"),
-                background:n===ph?"var(--primary)":n<ph?"var(--bg)":"var(--bg)",color:n===ph?"#fff":n<ph?"var(--text)":"var(--g300)",cursor:n<=ph||generated?"pointer":"default"
+            {[["Event",1],["Cart",3]].map(([l,n])=>{
+              const active=(n===1&&(ph===1||ph===2))||(n===3&&ph===3);
+              const canClick=n===1||(n===3&&generated);
+              return(
+              <button key={n} onClick={()=>{if(!canClick)return;if(n===1){setPh(generated?2:1);}else{setPh(3);}}} style={{
+                fontFamily:"var(--fb)",fontSize:12,fontWeight:600,padding:"6px 14px",borderRadius:"var(--r)",border:"1px solid "+(active?"var(--primary)":"var(--g200)"),
+                background:active?"var(--primary)":"var(--bg)",color:active?"#fff":canClick?"var(--text)":"var(--g300)",cursor:canClick?"pointer":"default"
               }}>{l}</button>
-            ))}
+            );})}
           </div>
         </div>
       </div>
 
-      {/* ═══ STICKY SUMMARY BAR (Phase 2+) ═══ */}
-      {ph===2&&items.length>0&&(
+      {/* ═══ COMPOSITION HEADER (always visible in Phase 1+2) ═══ */}
+      {(ph===1||ph===2)&&(
         <div style={{background:"var(--bg)",borderBottom:"1px solid var(--g200)",padding:"10px 32px",position:"sticky",top:64,zIndex:99}}>
-          <div style={{maxWidth:1280,margin:"0 auto",display:"flex",alignItems:"center",gap:20}}>
-            <h2 style={{fontFamily:"var(--fh)",fontSize:"1.75rem",fontWeight:700,flex:"0 0 auto"}}>{evName||"Untitled Event"}</h2>
-            <div style={{display:"flex",alignItems:"center",gap:6}}>
-              <span style={{fontFamily:"var(--fh)",fontSize:18,fontWeight:700,color:"var(--pist)"}}>{ecoScore}%</span>
-              <span style={{fontSize:11,color:"var(--muted)"}}>Eco</span>
-              <button onClick={()=>setShowImprove(true)} style={{background:"var(--pist)",color:"#fff",border:"none",borderRadius:"var(--rs)",padding:"3px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"var(--fh)"}}>Improve</button>
-            </div>
-            <div style={{flex:1}}/>
-            <div style={{textAlign:"right"}}>
-              <div style={{fontFamily:"var(--fh)",fontSize:"1.5rem",fontWeight:700,whiteSpace:"nowrap"}}>€{totalPrice.toFixed(2)}{evType==="continuous"?"/"+freqLabel[csFreq]:""}</div>
-              {evType==="continuous"&&<div style={{fontSize:10,color:"var(--muted)"}}>€{contractTotal.toFixed(2)} total ({totalDeliveries} deliveries)</div>}
-            </div>
-            <button className="btn btn-s" style={{padding:"8px 16px",fontSize:12}} onClick={()=>window.print()}>Export Proposal</button>
-            <button className="btn btn-p" style={{padding:"8px 16px",fontSize:12}} onClick={()=>setPh(3)}>Add to Cart</button>
+          <div style={{maxWidth:1280,margin:"0 auto",display:"flex",alignItems:"center",gap:16}}>
+            <h2 style={{fontFamily:"var(--fh)",fontSize:"1.75rem",fontWeight:700,flex:"0 0 auto",color:evName?"var(--text)":"var(--g300)"}}>{evName||"Untitled Event"}</h2>
+            {ph===2&&(
+              <button onClick={()=>setPh(1)} style={{background:"none",border:"1px solid var(--g200)",borderRadius:"var(--rs)",padding:"3px 12px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:"var(--fh)",color:"var(--primary)",whiteSpace:"nowrap"}}>Edit Event</button>
+            )}
+            {ph===2&&items.length>0&&(<>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginLeft:8}}>
+                <span style={{fontFamily:"var(--fh)",fontSize:18,fontWeight:700,color:"var(--pist)"}}>{ecoScore}%</span>
+                <span style={{fontSize:11,color:"var(--muted)"}}>Eco</span>
+                <button onClick={()=>setShowImprove(true)} style={{background:"var(--pist)",color:"#fff",border:"none",borderRadius:"var(--rs)",padding:"3px 10px",fontSize:10,fontWeight:700,cursor:"pointer",fontFamily:"var(--fh)"}}>Improve</button>
+              </div>
+              <div style={{flex:1}}/>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontFamily:"var(--fh)",fontSize:"1.5rem",fontWeight:700,whiteSpace:"nowrap"}}>€{totalPrice.toFixed(2)}{evType==="continuous"?"/"+freqLabel[csFreq]:""}</div>
+                {evType==="continuous"&&<div style={{fontSize:10,color:"var(--muted)"}}>€{contractTotal.toFixed(2)} total ({totalDeliveries} deliveries)</div>}
+              </div>
+              <button className="btn btn-p" style={{padding:"8px 16px",fontSize:12}} onClick={()=>setPh(3)}>Add to Cart</button>
+            </>)}
+            {ph===1&&(<>
+              <div style={{flex:1}}/>
+              {mood&&(
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <span style={{width:10,height:10,borderRadius:"50%",background:MOODS.find(m=>m.id===mood)?.color}}/>
+                  <span style={{fontSize:12,fontWeight:600,color:"var(--muted)"}}>{MOODS.find(m=>m.id===mood)?.name}</span>
+                </div>
+              )}
+            </>)}
           </div>
         </div>
       )}
@@ -402,7 +421,9 @@ function App(){
 
         {/* ── PHASE 1: Event Setup ── */}
         {ph===1&&(
-          <div className="fin" style={{maxWidth:720}}>
+          <div className="slide-down" style={{display:"grid",gridTemplateColumns:"1fr 340px",gap:32}}>
+            {/* LEFT: Form fields */}
+            <div>
             <h1 style={{fontFamily:"var(--fh)",fontSize:"2.2rem",fontWeight:500,marginBottom:8}}>Set up your event</h1>
             <p style={{color:"var(--muted)",marginBottom:32,fontSize:15}}>Tell us about your event and we'll create the perfect table setting.</p>
 
@@ -522,16 +543,87 @@ function App(){
                 </div>
               </div>
             </div>
+            </div>
 
-            <button className="btn btn-p btn-full" style={{padding:"14px 24px",fontSize:15}} disabled={!mood} onClick={generateSet}>
-              Generate Set
-            </button>
+            {/* RIGHT: Summary panel (sticky) */}
+            <div style={{position:"sticky",top:140,alignSelf:"start"}}>
+              <div className="pnl" style={{marginBottom:16}}>
+                <div className="pnl-t">Configuration Summary</div>
+                <div style={{display:"flex",flexDirection:"column",gap:14}}>
+                  {/* Event name */}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                    <span style={{fontSize:12,color:"var(--muted)"}}>Event Name</span>
+                    <span style={{fontSize:13,fontWeight:600,color:evName?"var(--text)":"var(--g300)"}}>{evName||"—"}</span>
+                  </div>
+                  {/* Type */}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                    <span style={{fontSize:12,color:"var(--muted)"}}>Type</span>
+                    <span style={{fontSize:13,fontWeight:600}}>{evType==="once"?"One-time Event":"Continuous Supply"}</span>
+                  </div>
+                  {/* Mood */}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                    <span style={{fontSize:12,color:"var(--muted)"}}>Mood</span>
+                    {mood?(
+                      <span style={{display:"flex",alignItems:"center",gap:6}}>
+                        <span style={{width:10,height:10,borderRadius:"50%",background:MOODS.find(m=>m.id===mood)?.color}}/>
+                        <span style={{fontSize:13,fontWeight:600}}>{MOODS.find(m=>m.id===mood)?.name}</span>
+                      </span>
+                    ):<span style={{fontSize:13,color:"var(--g300)"}}>—</span>}
+                  </div>
+                  {/* Guests / Tables */}
+                  {evType==="once"?(
+                    <>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Guests</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{guests}</span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Tables</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{tablesManual?tables:autoTables()} × {TABLES.find(t=>t.id===tableShape)?.name}</span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Service</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{SERVICES.find(s=>s.id===service)?.name}</span>
+                      </div>
+                    </>
+                  ):(
+                    <>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Duration</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{csDuration==="unlimited"?"Unlimited":csDuration==="6m"?"6 months":csDuration==="12m"?"1 year":"2 years"}</span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Frequency</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{csFreq==="weekly"?"Weekly":csFreq==="monthly"?"Monthly":"Quarterly"}</span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Meals</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{csMeals} / {csMealBasis}</span>
+                      </div>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:10,borderBottom:"1px solid var(--g200)"}}>
+                        <span style={{fontSize:12,color:"var(--muted)"}}>Tables</span>
+                        <span style={{fontSize:13,fontWeight:600}}>{csTables}</span>
+                      </div>
+                    </>
+                  )}
+                  {/* Logo */}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{fontSize:12,color:"var(--muted)"}}>Logo</span>
+                    <span style={{fontSize:13,fontWeight:600,color:"var(--primary)"}}>Sybit GmbH</span>
+                  </div>
+                </div>
+              </div>
+
+              <button className="btn btn-p btn-full" style={{padding:"14px 24px",fontSize:15}} disabled={!mood} onClick={generateSet}>
+                {generated?"Update Set":"Generate Set"}
+              </button>
+            </div>
           </div>
         )}
 
         {/* ── PHASE 2: Set Composition ── */}
         {ph===2&&(
-          <div className="fin" style={{display:"grid",gridTemplateColumns:"340px 1fr",gap:24}} className="g2">
+          <div className="slide-down g2" style={{display:"grid",gridTemplateColumns:"340px 1fr",gap:24}}>
             {/* LEFT: Product list (sticky) */}
             <div style={{position:"sticky",top:140,alignSelf:"start",maxHeight:"calc(100vh - 160px)",overflowY:"auto",display:"flex",flexDirection:"column",gap:8}}>
               {items.map(i=>(
@@ -705,6 +797,7 @@ function App(){
                 <span style={{fontSize:12,fontWeight:700,color:"var(--muted)"}}>SUSTAINABILITY SCORE</span>
                 <div className="eco-bar" style={{height:14}}><div className="eco-fill" style={{width:ecoScore+"%",height:14}}/></div>
                 <span style={{fontFamily:"var(--fh)",fontSize:22,fontWeight:700,color:"var(--pist)"}}>{ecoScore}%</span>
+                <button onClick={()=>setShowImprove(true)} style={{background:"var(--pist)",color:"#fff",border:"none",borderRadius:"var(--rs)",padding:"5px 14px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"var(--fh)",marginLeft:4,whiteSpace:"nowrap"}}>Improve</button>
               </div>
 
               {/* Items */}
